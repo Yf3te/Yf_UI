@@ -5,6 +5,7 @@ import re
 import time
 import os
 import socket
+import tldextract
 from urllib.parse import urlparse
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -168,7 +169,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Yf_UI"))
         self.label.setText(_translate("Dialog", "信息收集整理工具"))
         self.label_2.setText(_translate("Dialog", "请输入公司名列表"))
         self.label_3.setText(_translate("Dialog", "备案号&公司列表"))
@@ -203,61 +204,72 @@ class Ui_Dialog(object):
         self.label_12.setText(_translate("Dialog", "c段列表"))
 
         self.pushButton_8.setText(_translate("Dialog", "httpx导航"))
+
     def extractbah(self):
-        # 获取 textBrowser_2 中的所有文本
-        input_text = self.textBrowser_2.toPlainText()
+        try:
+            # 获取 textBrowser_2 中的所有文本
+            input_text = self.textBrowser_2.toPlainText()
 
-        # 按行分割输入文本
-        lines = input_text.splitlines()
+            # 按行分割输入文本
+            lines = input_text.splitlines()
 
-        # 清空 textBrowser_2
-        self.textBrowser_2.clear()
+            # 清空 textBrowser_2
+            self.textBrowser_2.clear()
 
-        # 定义正则表达式
-        icp_pattern = r'\[icpCode\]: ([京津沪渝黑吉辽蒙冀晋陕宁甘青新藏川贵云粤桂琼苏浙皖鲁闽赣湘鄂豫][A-Z]?\d?-?[ICP备]*\d{4,10}号)'  # ICP码正则
-        company_pattern = r'\[Unit\]: ([\u4e00-\u9fff]+(?:[\u4e00-\u9fff]+)*)'  # 公司名称正则
-        url_pattern = r'www\.((?:\d{1,3}\.){3}\d{1,3}|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})'
-        # 用于存储去重后的ICP码和公司名称
-        icp_codes = set()
-        companies = set()
-        urls = set()
+            # 定义正则表达式
+            icp_pattern = r'\[icpCode\]: ([京津沪渝黑吉辽蒙冀晋陕宁甘青新藏川贵云粤桂琼苏浙皖鲁闽赣湘鄂豫][A-Z]?\d?-?[ICP备]*\d{4,10}号)'  # ICP码正则
+            company_pattern = r'\[Unit\]: ([\u4e00-\u9fff]+(?:[\u4e00-\u9fff]+)*)'  # 公司名称正则
+            url_pattern = r'www\.[a-zA-Z0-9\-\.]+'  # 匹配以 www. 开头的 URL
 
-        # 逐行处理
-        for line in lines:
-            # 查找 ICP 码
-            icp_match = re.search(icp_pattern, line)
-            if icp_match:
-                icp_code = icp_match.group(1)  # 提取ICP码
-                icp_codes.add(icp_code)  # 添加到 set 中，自动去重
+            # 用于存储去重后的ICP码和公司名称
+            icp_codes = set()
+            companies = set()
+            urls = set()
 
-            # 查找公司名称
-            company_match = re.search(company_pattern, line)
-            if company_match:
-                company_name = company_match.group(1)  # 提取公司名称
-                companies.add(company_name)  # 添加到 set 中，自动去重
+            # 逐行处理
+            for line in lines:
+                # 查找 ICP 码
+                icp_match = re.search(icp_pattern, line)
+                if icp_match:
+                    icp_code = icp_match.group(1)  # 提取ICP码
+                    icp_codes.add(icp_code)  # 添加到 set 中，自动去重
 
-            # 查找url
-            urls_match = re.search(url_pattern, line)
-            if urls_match:
-                url = urls_match.group(1)
-                urls.add(url)
+                # 查找公司名称
+                company_match = re.search(company_pattern, line)
+                if company_match:
+                    company_name = company_match.group(1)  # 提取公司名称
+                    companies.add(company_name)  # 添加到 set 中，自动去重
 
-        # 输出去重后的公司名称到 textBrowser_2
-        # self.textBrowser_2.append(f"去重后的公司：")
-        for company in companies:
-            self.textBrowser_2.append(company)
+                # 查找URL并提取主域名
+                urls_match = re.search(url_pattern, line)
+                if urls_match:
+                    full_url = urls_match.group(0)  # 获取完整的 URL
+                    try:
+                        # 使用 tldextract 提取主域名
+                        extracted = tldextract.extract(full_url)
+                        domain = extracted.domain + '.' + extracted.suffix  # 拼接成主域名
+                        if domain:  # 确保提取的域名不为空
+                            urls.add(domain)
+                    except Exception as e:
+                        print(f"Error extracting domain from {full_url}: {e}")
+                        continue  # 如果有错误，跳过当前 URL
 
-        # 输出去重后的ICP码到 textBrowser_2
-        # self.textBrowser_2.append(f"去重后的ICP码：")
-        for icp_code in icp_codes:
-            self.textBrowser_2.append(icp_code)
+            # 输出去重后的公司名称到 textBrowser_2
+            for company in companies:
+                self.textBrowser_2.append(company)
 
-        for url in urls:
-            self.textBrowser_3.append(url)
+            # 输出去重后的ICP码到 textBrowser_2
+            for icp_code in icp_codes:
+                self.textBrowser_2.append(icp_code)
 
-        # 分隔符，用于区分不同的输出
-        # self.textBrowser_2.append('-' * 40)
+            # 输出去重后的 URL 到 textBrowser_3
+            for url in urls:
+                self.textBrowser_3.append(url)
 
+        except Exception as e:
+            print(f"Error in extractbah: {e}")
+            # 在 UI 中显示错误信息，防止程序崩溃
+            self.textBrowser_2.append(f"发生错误: {str(e)}")
 
     def call_icpsearch(self):
         # 获取每一行输入
