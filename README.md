@@ -1,4 +1,4 @@
-### Yf_UI是一个目前用于整理信息收集数据的UI界面，其一些功能主要是调用一些现成的工具，其后还会对其它功能进行一个综合作用。
+### Yf_UI是一个目前用于整理信息收集数据、统一自己常用工具的简单UI界面，其一些功能主要是调用一些现成的工具，其后还会对其它功能进行一个综合作用。
 目前实现功能如下：
 1、Icp批量查询
 要修改一下icpsearch的路径，要修改自己安装的位置（绝对路径）。
@@ -6,5 +6,9 @@
 
 2、fofa批量语法
 3、url的整理。
-![image](https://github.com/user-attachments/assets/2e860f30-b702-4042-bbb4-34add89ee297)
-
+4、常用工具统一
+每个工具的路径需要自己根据工具本身的绝对路径导入，（在toolsource.py当中）
+下面简单做个展示
+![image](https://github.com/user-attachments/assets/743e825b-eda9-48d8-b8ed-49e6f7faaa54)
+常用工具集，共用一个文本框，但是还差一点程序防崩溃的措施，后续会开发
+![image](https://github.com/user-attachments/assets/13b7be43-f7ce-44e9-b1ba-60990d951414)
