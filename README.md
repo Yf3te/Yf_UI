@@ -12,3 +12,5 @@
 ![image](https://github.com/user-attachments/assets/743e825b-eda9-48d8-b8ed-49e6f7faaa54)
 常用工具集，共用一个文本框，但是还差一点程序防崩溃的措施，后续会开发
 ![image](https://github.com/user-attachments/assets/13b7be43-f7ce-44e9-b1ba-60990d951414)
+通过点击左侧的工具栏，将会自动填写命令到命令行
+![image](https://github.com/user-attachments/assets/95cea709-4407-40f3-9540-07be2b6c9703)
